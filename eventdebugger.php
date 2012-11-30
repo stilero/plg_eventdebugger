@@ -18,19 +18,35 @@ $classes = dirname(__FILE__).DS.'eventdebugger'.DS.'classes'.DS;
 JLoader::register('JArticleErrors', $classes.'jarticle-errors.php');
 JLoader::register('JArticleImage', $classes.'jarticle-image.php');
 JLoader::register('JArticleUrl', $classes.'jarticle-url.php');
+JLoader::register('JArticleUrl15', $classes.'jarticle-url15.php');
 JLoader::register('JArticle', $classes.'jarticle.php');
 JLoader::register('JArticle15', $classes.'jarticle15.php');
 JLoader::register('JArticle16', $classes.'jarticle16.php');
 JLoader::register('JArticle17', $classes.'jarticle17.php');
 JLoader::register('JArticle30', $classes.'jarticle30.php');
 
-class plgSystemEventdebugger extends JPlugin {
+class plgContentEventdebugger extends JPlugin {
     var $config;
 
-    function plgSystemEventdebugger ( &$subject, $config ) {
+    function plgContentEventdebugger ( &$subject, $config ) {
         parent::__construct( $subject, $config );
     }
     
+    public function debugArticle(&$article){
+        $JA = new JArticle15($article);
+        if($JA->isArticle()){
+            $JAUrl = new JArticleUrl15($JA);
+            $JAImage = new JArticleImage($JA);
+            print "<pre>";
+            print $JAUrl->url();
+            //var_dump($article);
+            //var_dump($JAImage->src());
+            //print $JA->getArticle();exit;
+            //var_dump($jarticle);exit;
+            print "</pre>";
+            return '';
+        }
+    }
     // ---------- Joomla 1.6+ methods ------------------
     
     /**
@@ -56,12 +72,8 @@ class plgSystemEventdebugger extends JPlugin {
      * @since 1.6
      */
     public function onContentAfterDisplay($context, $article, &$params, $limitstart=0){
-        $JA = new JArticle16($article);
-        print "<pre>";
-        var_dump($JA->Article);
-        print "</pre>";
-        exit;
-        return '';
+        $this->debugArticle($article);
+            return '';
     }
     
     /**
@@ -74,7 +86,7 @@ class plgSystemEventdebugger extends JPlugin {
      * @since 1.6
      */
     public function onContentAfterSave($context, &$article, $isNew){
-        
+        $this->debugArticle($article);
     }
     
     /**
@@ -242,12 +254,7 @@ class plgSystemEventdebugger extends JPlugin {
      */
     public function onAfterDisplayContent( $article, &$params, $limitstart=0 ){
         global $mainframe;
-        $JA = new JArticle15($article);
-        print "<pre>";
-        var_dump($JA->Article);
-        print "</pre>";
-        exit;
-        return '';
+        $this->debugArticle($article);
         return '';
     }
 

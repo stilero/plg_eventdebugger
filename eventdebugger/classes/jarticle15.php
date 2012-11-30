@@ -16,11 +16,11 @@ defined('_JEXEC') or die('Restricted access');
 
 class JArticle15 extends JArticle{
     
-    public static $JOOMLA_VERSION = '1.5';
-    public static $ACCESS_PUBLIC = '0';
-    public static $ACCESS_REGISTRED = '1';
-    public static $ACCESS_SPECIAL = '2';
-    public static $STATE_ARCHIVED = '-1';
+    public $JOOMLA_VERSION = '1.5';
+    public $ACCESS_PUBLIC = '0';
+    public $ACCESS_REGISTRED = '1';
+    public $ACCESS_SPECIAL = '2';
+    public $STATE_ARCHIVED = '-1';
     
     public function __construct($article) {
         parent::__construct($article);
@@ -39,18 +39,18 @@ class JArticle15 extends JArticle{
         }
     }
     
-    public static function truncate($text, $length = 0){
+    public function truncate($text, $limit=  0){
         // Truncate the item text if it is too long.
-        if ($length > 0 && JString::strlen($text) > $length){
+        if ($limit > 0 && JString::strlen($text) > $limit){
             // Find the first space within the allowed length.
-            $tmp = JString::substr($text, 0, $length);
+            $tmp = JString::substr($text, 0, $limit);
             $offset = JString::strrpos($tmp, ' ');
             if(JString::strrpos($tmp, '<') > JString::strrpos($tmp, '>')){
                 $offset = JString::strrpos($tmp, '<');
             }
             $tmp = JString::substr($tmp, 0, $offset);
             // If we don't have 3 characters of room, go to the second space within the limit.
-            if (JString::strlen($tmp) >= $length - 3) {
+            if (JString::strlen($tmp) >= $limit - 3) {
                 $tmp = JString::substr($tmp, 0, JString::strrpos($tmp, ' '));
             }
             //put all opened tags into an array
@@ -80,46 +80,7 @@ class JArticle15 extends JArticle{
         return $text;
     }
     
-    public function description($article, $limit=250){
-        $desc = $article->text;
-         if(isset($article->introtext) && $article->introtext!=""){
-             $desc = $article->introtext;
-         }elseif (isset($article->metadesc) && $article->metadesc!="" ) {
-            $desc = $article->metadesc;
-        }
-        $description = self::truncate($desc, $limit);
-        return $description;
+    public function getCurrentDate(){
+        return JFactory::getDate()->toMySQL();
     }
-    
-    public function isPublished($article){
-        $isPublished = $article->state == self::$STATE_PUBLISHED ? true : false;
-        if(!$isPublished){
-            return FALSE;
-        }
-        $publishUp = isset($article->publish_up) ? $article->publish_up : '';
-        $publishDown = isset($article->publish_down) ? $article->publish_down : '';
-        if($publishUp == '' ){
-            return false;
-        }
-        $now = JFactory::getDate()->toMySQL();
-        if ( ($publishUp > $now) ){
-            return FALSE;
-        }else if($publishDown < $now && $publishDown != '0000-00-00 00:00:00' && $publishDown!=""){
-            return FALSE;
-        }else {
-            return TRUE;
-        }
-    }
-    
-    public function isPublic($article){
-        if(!isset($article->access)){
-            return FALSE;
-        }
-        $isPublic = $article->access == self::$ACCESS_PUBLIC ? TRUE : FALSE;
-        return $isPublic;
-    }
-    
-    public function tags($article) {
-        return parent::tags($article);
-    } 
 }

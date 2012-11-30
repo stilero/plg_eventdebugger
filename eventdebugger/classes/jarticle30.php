@@ -22,24 +22,4 @@ class JArticle30 extends JArticle{
     public function __construct($article) {
         parent::__construct($article);
     }
-    
-    public function categoryTitle($article){
-        return parent::categoryTitle($article);
-    }
-    
-    public function description($article, $limit=250){
-        return parent::description($article, $limit);
-    }
-    
-    public function isPublished($article){
-        return parent::isPublished($article);
-    }
-    
-    public function isPublic($article){
-        return parent::isPublished($article);
-    }
-    
-    public function tags($article) {
-        return parent::tags($article);
-    } 
 }

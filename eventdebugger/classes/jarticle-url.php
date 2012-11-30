@@ -16,17 +16,20 @@ defined('_JEXEC') or die('Restricted access');
 
 class JArticleUrl{
     
+    protected $article;
+
+
     public function __construct($JArticle) {
-        $this->Article->url = $this->url($JArticle);
+        $this->article = $JArticle->getArticle();
     }
     
     protected function isExtensionInstalled($option){
         $db = JFactory::getDbo();
         $query = $db->getQuery(true);
         $query->select('*');
-        $query->from($query->quoteName('#__extensions'));
-        $query->where($query->quoteName('type') . ' = ' . $db->quote('component'));
-        $query->where($query->quoteName('element').' = '.$db->quote($option));
+        $query->from('#__extensions');
+        $query->where('type' . ' = ' . $db->quote('component'));
+        $query->where('element'.' = '.$db->quote($option));
         $db->setQuery($query);
         $result = $db->loadObject();
         if(!$result){
@@ -34,32 +37,33 @@ class JArticleUrl{
         }
         return TRUE;
     }
-    
-    private function _categoryAlias($article){
+
+    protected function _categoryAlias(){
         jimport( 'joomla.filter.output' );
         $db =& JFactory::getDBO();
         $query = $db->getQuery(true);
         $query->select('alias');
-        $query->from($db->quoteName('#__categories'));
-        $query->where('id = '.$db->quote($article->catid));
+        $query->from('#__categories');
+        $query->where('id = '.$db->quote($this->article->catid));
         $db->setQuery($query);
         $result = $db->loadObject();
         $alias = JFilterOutput::stringURLSafe($result->alias);
         return $alias;
     }
     
-    private function _articleAlias($article){
+    protected function _articleAlias(){
         jimport( 'joomla.filter.output' );
-        $alias = $article->alias;
+        $alias = $this->article->alias;
         if(empty($alias)) {
             $db =& JFactory::getDBO();
             $query = $db->getQuery(true);
             $query->select('alias');
-            $query->from($db->quoteName('#__content'));
-            $query->where('id='.$db->quote($article->id));
+            $query->from('#__content');
+            $query->where('id='.$db->quote($this->article->id));
             $db->setQuery($query);
+            print $query;
             $result = $db->loadObject();
-            $alias = $article->title;
+            $alias = $this->article->title;
             if(!empty($result->alias)){
                 $alias = $result->alias;
             }
@@ -68,12 +72,12 @@ class JArticleUrl{
         return $filteredAlias;
     }
     
-    private function _articleSlug($article){
-        $slug = $article->id.':'.$this->_articleAlias($article);
+    protected function _articleSlug(){
+        $slug = $this->article->id.':'.$this->_articleAlias();
         return $slug;
     }
     
-    private function _initSh404SefUrls(){
+    protected function _initSh404SefUrls(){
         $app = &JFactory::getApplication();
         require_once(JPATH_ADMINISTRATOR.DS.'components'.DS.'com_sh404sef'.DS.'sh404sef.class.php');
         $sefConfig = & Sh404sefFactory::getConfig();
@@ -95,7 +99,7 @@ class JArticleUrl{
         $joomlaRouter->attachBuildRule( array( $pageInfo->router, 'buildRule'));
     }
     
-    private function _attachSh404SefRouting(){
+    protected function _attachSh404SefRouting(){
          if(!$this->isExtensionInstalled('com_sh404sef')){
              return;
         }
@@ -107,16 +111,16 @@ class JArticleUrl{
         
     }
     
-    private function _joomlaSefUrlFromRoute($article){
+    protected function _joomlaSefUrlFromRoute(){
         require_once(JPATH_SITE.DS.'components'.DS.'com_content'.DS.'helpers'.DS.'route.php');
         $siteURL = substr(JURI::root(), 0, -1);
         if(JPATH_BASE == JPATH_ADMINISTRATOR) {
             // In the back end we need to set the application to the site app instead
             JFactory::$application = JApplication::getInstance('site');
         }
-        $catAlias = $this->_categoryAlias($article);
-        $articleSlug = $this->_articleSlug($article);
-        $catSlug = $article->catid.':'.$catAlias;
+        $catAlias = $this->_categoryAlias();
+        $articleSlug = $this->_articleSlug();
+        $catSlug = $this->article->catid.':'.$catAlias;
         $this->_attachSh404SefRouting();
         $articleRoute = JRoute::_( ContentHelperRoute::getArticleRoute($articleSlug, $catSlug) );
         $sefURI = str_replace(JURI::base(true), '', $articleRoute);
@@ -128,7 +132,7 @@ class JArticleUrl{
         return $sefURL;
     }
         
-    public function url($article){
-        return $this->_joomlaSefUrlFromRoute($article);
+    public function url(){
+        return $this->_joomlaSefUrlFromRoute();
     }
 }

@@ -14,20 +14,19 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access'); 
 jimport('joomla.utilities.date');
-//jimport( 'joomla.html.html.string' );
 
 class JArticle extends JArticleErrors{
     
     public $Article;
-    public static $JOOMLA_VERSION = '2.5';
-    public static $ACCESS_PUBLIC = '1';
-    public static $ACCESS_REGISTRED = '2';
-    public static $ACCESS_SPECIAL = '3';
-    public static $ACCESS_CUSTOM = '4';
-    public static $STATE_PUBLISHED = '1';
-    public static $STATE_UNPUBLISHED = '0';
-    public static $STATE_ARCHIVED = '2';
-    public static $STATE_TRASHED = '-2';
+    public $JOOMLA_VERSION = '2.5';
+    public $ACCESS_PUBLIC = '1';
+    public $ACCESS_REGISTRED = '2';
+    public $ACCESS_SPECIAL = '3';
+    public $ACCESS_CUSTOM = '4';
+    public $STATE_PUBLISHED = '1';
+    public $STATE_UNPUBLISHED = '0';
+    public $STATE_ARCHIVED = '2';
+    public $STATE_TRASHED = '-2';
 
 
     public function __construct($article) {
@@ -44,6 +43,11 @@ class JArticle extends JArticleErrors{
         $this->Article = $tempClass;
     }
     
+    public function getArticle(){
+        return $this->Article;
+    }
+
+
     protected function loadDependencies(){
         JLoader::register('JHtmlString', JPATH_ROOT.'/libraries/joomla/html/html/string.php');
     }
@@ -57,6 +61,10 @@ class JArticle extends JArticleErrors{
         }
     }
     
+    public function truncate($text, $limit){
+        return JHtmlString::truncate($text, $limit, true, false);
+    }
+    
     public function description($article, $limit=250){
         $desc = $article->text;
          if(isset($article->introtext) && $article->introtext!=""){
@@ -64,12 +72,12 @@ class JArticle extends JArticleErrors{
          }elseif (isset($article->metadesc) && $article->metadesc!="" ) {
             $desc = $article->metadesc;
         }
-        $description = JHtmlString::truncate($desc, $limit, true, false);
+        $description = $this->truncate($desc, $limit);
         return $description;
     }
     
     public function isPublished($article){
-        $isPublished = $article->state == self::$STATE_PUBLISHED ? true : false;
+        $isPublished = $article->state == $this->STATE_PUBLISHED ? true : false;
         if(!$isPublished){
             return FALSE;
         }
@@ -78,7 +86,7 @@ class JArticle extends JArticleErrors{
         if($publishUp == '' ){
             return false;
         }
-        $now = JFactory::getDate()->toSql();
+        $now = $this->getCurrentDate();
         if ( ($publishUp > $now) ){
             return FALSE;
         }else if($publishDown < $now && $publishDown != '0000-00-00 00:00:00' && $publishDown!=""){
@@ -92,8 +100,28 @@ class JArticle extends JArticleErrors{
         if(!isset($article->access)){
             return FALSE;
         }
-        $isPublic = $article->access == self::$ACCESS_PUBLIC ? TRUE : FALSE;
+        $isPublic = $article->access == $this->ACCESS_PUBLIC ? TRUE : FALSE;
         return $isPublic;
+    }
+    
+    public function isArticle(){
+        $id = JRequest::getInt('id');
+        $option = JRequest::getCmd('option');
+        $view = JRequest::getCmd('view');
+        $layout = JRequest::getCmd('layout');
+        $hasID = is_int($id) ? true : false;
+        $isComponent = $option == 'com_content' ? true : false;
+        $isView = $view == 'article' ? true : false;
+        $isEditing = $layout == 'edit' ? true : false;
+        if($hasID && $isComponent && ( $isView || $isEditing) ){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+    }
+       
+    public function getCurrentDate(){
+        return JFactory::getDate()->toSql();
     }
     
     public function tags($article) {
@@ -109,7 +137,7 @@ class JArticle extends JArticleErrors{
        return $tags;
     } 
     
-//    public function __get($name) {
-//        return $this->$name;
-//    }
+    public function getVersion(){
+        return $this->joomla_version;
+    }
 }
