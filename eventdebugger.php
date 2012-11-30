@@ -19,11 +19,14 @@ JLoader::register('JArticleErrors', $classes.'jarticle-errors.php');
 JLoader::register('JArticleImage', $classes.'jarticle-image.php');
 JLoader::register('JArticleUrl', $classes.'jarticle-url.php');
 JLoader::register('JArticleUrl15', $classes.'jarticle-url15.php');
+JLoader::register('K2JArticleUrl15', $classes.'k2jarticle-url15.php');
 JLoader::register('JArticle', $classes.'jarticle.php');
 JLoader::register('JArticle15', $classes.'jarticle15.php');
 JLoader::register('JArticle16', $classes.'jarticle16.php');
 JLoader::register('JArticle17', $classes.'jarticle17.php');
 JLoader::register('JArticle30', $classes.'jarticle30.php');
+JLoader::register('K2JArticle15', $classes.'k2jarticle15.php');
+
 
 class plgContentEventdebugger extends JPlugin {
     var $config;
@@ -42,6 +45,24 @@ class plgContentEventdebugger extends JPlugin {
             //var_dump($article);
             //var_dump($JAImage->src());
             //print $JA->getArticle();exit;
+            //var_dump($jarticle);exit;
+            print "</pre>";
+            return '';
+        }
+    }
+    
+    public function debugK2Article(&$article){
+        $JA = new K2JArticle15($article);
+        if($JA->isArticle()){
+            $jarticle = $JA->getArticle();
+            $JAUrl = new K2JArticleUrl15($JA);
+            $JAImage = new JArticleImage($JA);
+            print "<pre>";
+            print $JAUrl->url();
+            //var_dump($article);
+            //var_dump($JAImage->src());
+            var_dump($jarticle);
+            //exit;
             //var_dump($jarticle);exit;
             print "</pre>";
             return '';
@@ -197,6 +218,12 @@ class plgContentEventdebugger extends JPlugin {
      */
     public function onAfterContentSave(&$article, $isNew ){
         global $mainframe;
+        $option = JRequest::getCmd('option');
+        if($option == 'com_content'){
+            $this->debugArticle($article);
+        }elseif($option == 'com_k2'){
+            $this->debugK2Article($article);
+        }
         return true;
     }
     
@@ -256,6 +283,20 @@ class plgContentEventdebugger extends JPlugin {
         global $mainframe;
         $this->debugArticle($article);
         return '';
+    }
+    
+    public function onK2AfterDisplayContent(&$item, &$params, $limitstart=0){
+        $this->debugK2Article($item);
+    }
+    
+    public function onAfterK2Save(&$row, $isNew){
+        print __FUNCTION__;exit;
+         $this->debugK2Article($row);
+    }
+    
+    public function onK2AfterSave(&$row, $isNew){
+        var_dump($row);exit;
+         $this->debugK2Article($row);
     }
 
 } //End Class
