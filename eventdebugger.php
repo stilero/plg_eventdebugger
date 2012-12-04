@@ -20,12 +20,14 @@ JLoader::register('JArticleImage', $classes.'jarticle-image.php');
 JLoader::register('JArticleUrl', $classes.'jarticle-url.php');
 JLoader::register('JArticleUrl15', $classes.'jarticle-url15.php');
 JLoader::register('K2JArticleUrl15', $classes.'k2jarticle-url15.php');
+JLoader::register('K2JArticleUrl', $classes.'k2jarticle-url.php');
 JLoader::register('JArticle', $classes.'jarticle.php');
 JLoader::register('JArticle15', $classes.'jarticle15.php');
 JLoader::register('JArticle16', $classes.'jarticle16.php');
 JLoader::register('JArticle17', $classes.'jarticle17.php');
 JLoader::register('JArticle30', $classes.'jarticle30.php');
 JLoader::register('K2JArticle15', $classes.'k2jarticle15.php');
+JLoader::register('K2JArticle', $classes.'k2jarticle.php');
 
 
 class plgContentEventdebugger extends JPlugin {
@@ -52,17 +54,17 @@ class plgContentEventdebugger extends JPlugin {
     }
     
     public function debugK2Article(&$article){
-        $JA = new K2JArticle15($article);
+        $JA = new K2JArticle($article);
         if($JA->isArticle()){
             $jarticle = $JA->getArticle();
-            $JAUrl = new K2JArticleUrl15($JA);
+            $JAUrl = new K2JArticleUrl($JA);
             $JAImage = new JArticleImage($JA);
             print "<pre>";
             print $JAUrl->url();
             //var_dump($article);
             //var_dump($JAImage->src());
             var_dump($jarticle);
-            //exit;
+            exit;
             //var_dump($jarticle);exit;
             print "</pre>";
             return '';

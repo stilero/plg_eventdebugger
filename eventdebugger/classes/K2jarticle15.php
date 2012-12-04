@@ -16,11 +16,11 @@ defined('_JEXEC') or die('Restricted access');
 
 class K2JArticle15 extends JArticle15{
     
-    public $ACCESS_PUBLIC = '0';
-    public $ACCESS_REGISTRED = '1';
-    public $ACCESS_SPECIAL = '2';
-    public $STATE_PUBLISHED = '1';
-    public $STATE_UNPUBLISHED = '0';
+//    public $ACCESS_PUBLIC = '0';
+//    public $ACCESS_REGISTRED = '1';
+//    public $ACCESS_SPECIAL = '2';
+//    public $STATE_PUBLISHED = '1';
+//    public $STATE_UNPUBLISHED = '0';
     
     public function __construct($article) {
         parent::__construct($article);
